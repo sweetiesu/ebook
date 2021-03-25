@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.lianshuwang.dao.UserDao">
+
+    <resultMap id="userMap" type="com.lianshuwang.domin.User">
+        <id column="id" property="id" />
+        <result column="userCode" property="userCode" />
+        <result column="userPassword" property="userPassword" />
+        <result column="userName" property="userName" />
+        <result column="email" property="email" />
+        <result column="avatarNum" property="avatarNum" />
+        <result column="contribution" property="contribution" />
+        <result column="creationDate" property="creationDate" />
+    </resultMap>
+
+<!--定义字段    -->
+    <sql id="user_columns">
+        id, userCode, userPassword, userName, email, avatarNum, contribution, creationDate
+    </sql>
+
+    <!--根据id查询个人信息-->
+    <select id="queryById" parameterType="long" resultMap="userMap">
+        SELECT
+        <include refid="user_columns" />
+        from user WHERE id=#{id}
+    </select>
+
+    <!--登录时用户名密码查询-->
+    <select id="queryByLogin" resultMap="userMap">
+        SELECT
+        <include refid="user_columns" />
+        FROM user where
+        userCode=#{userCode} and userPassword=#{userPassword}
+    </select>
+
+    <!--根据用户名查询user-->
+    <select id="queryByUserCode" parameterType="String" resultType="int">
+        SELECT count(*) FROM user WHERE userCode=#{userCode}
+    </select>
+
+    <!--新增用户-->
+    <insert id="addUser" parameterType="User">
+        insert into
+        user(userCode,userPassword,userName,email,avatarNum,contribution,creationDate)
+        values(#{userCode}, #{userPassword}, #{userName}, #{email}, #{avatarNum}, #{contribution}, #{creationDate})
+    </insert>
+
+    <!--更改密码-->
+    <update id="updateUserPassword">
+        update user SET
+        userPassword=#{userPassword}
+        WHERE id=#{id}
+    </update>
+
+<!--更新贡献值-->
+    <update id="updateUserContribution">
+        update user SET
+        contribution=contribution+#{addValue}
+        where id=#{id}
+    </update>
+
+    <!--修改头像\昵称邮箱-->
+    <update id="updateUserInfo" parameterType="User">
+        update user SET
+        userName=#{userName},email=#{email},avatarNum=#{avatarNum}
+        where id=#{id}
+    </update>
+
+
+    <!--后台查询所有用户按照贡献分排序-->
+    <select id="queryUserByContribution" resultMap="userMap">
+        select
+        <include refid="user_columns" />
+        from user
+        order by contribution desc
+        limit 10
+    </select>
+
+    <!--查询user表中所有信息-->
+    <select id="queryUserNumber" resultType="int">
+        select count(*)
+        from user;
+    </select>
+
+    <!--查询本周注册的用户-->
+    <select id="queryUserNumberByWeek" resultType="int">
+        select count(*)
+        from user
+        where DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(creationDate)
+    </select>
+
+    <!--查询30天内注册的用户-->
+    <select id="queryUserNumberByMonth" resultType="int">
+        select count(*)
+        from user
+        where DATE_SUB(CURDATE(), INTERVAL 30 DAY) &lt;= date(creationDate)
+    </select>
+
+    <!--根据id删除用户-->
+    <delete id="deleteUser" parameterType="long">
+        delete from user where id=#{id}
+    </delete>
+
+    <!--模糊查询用户-->
+    <select id="queryUserByUserName" parameterType="String" resultMap="userMap">
+        select
+        <include refid="user_columns" />
+        from user where userName like concat('%',#{userName},'%')
+        order by contribution desc
+    </select>
+
+</mapper>

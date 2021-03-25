@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.lianshuwang.dao.AvatarDao">
+
+    <resultMap id="avatarMap" type="com.lianshuwang.domin.Avatar">
+        <id column="id" property="id" />
+        <result column="avatar_txt" property="avatar_txt" />
+        <result column="avatar_img" property="avatar_img" />
+    </resultMap>
+
+    <!--通过id查询,头像信息-->
+    <select id="queryById" parameterType="int" resultMap="avatarMap">
+        SELECT id, avatar_txt, avatar_img from avatar WHERE id=#{id}
+    </select>
+
+    <!--查询所有头像-->
+    <select id="queryAll" resultMap="avatarMap">
+        SELECT id, avatar_txt, avatar_img FROM avatar
+    </select>
+
+    <!--查询具体头像路径的头像id编号-->
+    <select id="queryByImgPath" parameterType="String" resultType="int">
+        select id from avatar where avatar_img=#{avatar_img}
+    </select>
+
+
+</mapper>
